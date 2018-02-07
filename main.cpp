@@ -27,6 +27,8 @@ int main(int argc, char** argv) {
   srand((unsigned)time(0));
 
   vector<newsgroup> newsgroups;
+  std::map<document, string> train_docs;
+  std::map<document, string> train_pred_docs;
   std::ifstream map_file(path + "map.csv");
   string line;
 
@@ -34,7 +36,6 @@ int main(int argc, char** argv) {
   while (std::getline(map_file, line)) {
     vector<string> in;
     tokenize(line, in);
-    // std::cout << in[1] << std::endl;
     newsgroups.push_back(newsgroup(in[1].c_str(), stoi(in[0])));
   }
 
@@ -72,7 +73,11 @@ int main(int argc, char** argv) {
         return -1;
       }
       auto& ng = newsgroups[stoi(label_line) - 1];
-      ng.add_document(doc);
+
+      const auto& added_doc = ng.add_document(doc);
+
+      train_pred_docs[added_doc] = "";
+      train_docs[added_doc] = ng.get_name();
     }
 
     words.push_back(word(word_id, word_count));
@@ -84,11 +89,15 @@ int main(int argc, char** argv) {
     return -1;
   }
   auto& ng = newsgroups[stoi(label_line) - 1];
-  ng.add_document(doc);
+  const auto& added_doc = ng.add_document(doc);
+  train_pred_docs[added_doc] = "";
+  train_docs[added_doc] = ng.get_name();
 
-  for (const auto& ng : newsgroups) {
-    std::cout << ng.get_name() << ng.prior() << std::endl;
-  }
+  //   for (const auto& ng : newsgroups) {
+  //     std::cout << ng.get_name() << ng.prior() << std::endl;
+  //   }
+  predict(newsgroups, naive_bayes_be, train_pred_docs);
+  //   for (auto it = train_docs.begin(); it != train_docs)
   return 0;
 }
 
@@ -122,6 +131,7 @@ void tokenize(const string& str, vector<string>& tokens,
 inline int first_token(const string& str, const string& delim) {
   return stoi(str.substr(0, str.find(delim)));
 }
+
 std::pair<string, double> naive_bayes_classify(
     const vector<newsgroup>& newsgroups, const vector<word>& in_words,
     double (*estimator)(const newsgroup& ng, const vector<word>& in_words)) {
@@ -162,4 +172,13 @@ double naive_bayes_mle(const newsgroup& ng, const vector<word>& words) {
   }
 
   return sum != 0 ? log(ng.prior() + sum) : 0;
+}
+
+void predict(const vector<newsgroup>& newsgroups, estimator_t estimator,
+             std::map<document, string>& docs) {
+  for (auto it = docs.begin(); it != docs.end(); it++) {
+    auto doc = it->first;
+    auto res = naive_bayes_classify(newsgroups, doc.words, estimator);
+    docs[doc] = res.first;
+  }
 }

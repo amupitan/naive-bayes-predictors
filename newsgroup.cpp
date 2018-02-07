@@ -8,7 +8,7 @@ std::set<int> newsgroup::all_words;
 newsgroup::newsgroup(const char* name, int id)
     : id(id), name(name), num_words(0) {}
 
-void newsgroup::add_document(const document& d) {
+const document& newsgroup::add_document(const document& d) {
   documents.push_back(d);
   TOTAL_DOCS++;
 
@@ -21,6 +21,7 @@ void newsgroup::add_document(const document& d) {
       words[w.id] += w.count;
     }
   }
+  return documents[documents.size() - 1];
 }
 int newsgroup::num_unique_words() const { return words.size(); }
 

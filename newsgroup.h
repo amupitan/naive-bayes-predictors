@@ -22,7 +22,7 @@ class newsgroup {
   static int VOCAB_LEN;
   newsgroup(const char* name, int id);
 
-  void add_document(const document& d);
+  const document& add_document(const document& d);
   int num_unique_words() const;
   double prior() const;
   double max_likelyhood_estimator(int id) const;

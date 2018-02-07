@@ -14,6 +14,7 @@ struct document {
   int id;
   std::vector<word> words;
   document(int id, const std::vector<word>& words) : id(id), words(words) {}
+  inline bool operator<(const document& rhs) const { return id < rhs.id; }
 };
 }  // namespace naive_bayes
 
