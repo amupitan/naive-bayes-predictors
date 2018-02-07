@@ -1,0 +1,5 @@
+20newsgroups/
+*.csv
+*.o
+ml
+.vscode/
