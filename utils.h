@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include "newsgroup.h"
 
 unsigned int count_lines(FILE* p);
 

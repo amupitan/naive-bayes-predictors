@@ -1,4 +1,3 @@
-#include "main.h"
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -10,6 +9,7 @@
 #include "document.h"
 #include "naive_bayes.h"
 #include "newsgroup.h"
+#include "utils.h"
 
 using namespace naive_bayes;
 using std::string;
@@ -100,35 +100,4 @@ int main(int argc, char** argv) {
   predict(newsgroups, naive_bayes_be, train_pred_docs);
   //   for (auto it = train_docs.begin(); it != train_docs)
   return 0;
-}
-
-unsigned int count_lines(FILE* fp) {
-  unsigned int num_lines = 0;
-  int ch = 0;
-  do {
-    ch = fgetc(fp);
-    if (ch == '\n') num_lines++;
-  } while (ch != EOF);
-  return num_lines;
-}
-
-void tokenize(const string& str, vector<string>& tokens,
-              const string& delimiters) {
-  // Skip delimiters at beginning.
-  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-  // Find first "non-delimiter".
-  string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-  while (string::npos != pos || string::npos != lastPos) {
-    // Found a token, add it to the vector.
-    tokens.push_back(str.substr(lastPos, pos - lastPos));
-    // Skip delimiters.  Note the "not_of"
-    lastPos = str.find_first_not_of(delimiters, pos);
-    // Find next "non-delimiter"
-    pos = str.find_first_of(delimiters, lastPos);
-  }
-}
-
-inline int first_token(const string& str, const string& delim) {
-  return stoi(str.substr(0, str.find(delim)));
 }
