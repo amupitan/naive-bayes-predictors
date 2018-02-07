@@ -24,8 +24,8 @@ void newsgroup::add_document(const document& d) {
 }
 int newsgroup::num_unique_words() const { return words.size(); }
 
-int newsgroup::word_frequency(const word& w) const {
-  auto found = words.find(w.id);
+int newsgroup::word_frequency(int id) const {
+  auto found = words.find(id);
   if (found != words.end()) {
     return found->second;
   }
@@ -36,15 +36,15 @@ double newsgroup::prior() const {
   return (double)documents.size() / TOTAL_DOCS;
 }
 
-double newsgroup::max_likelyhood_estimator(const word& w) const {
-  return (double)word_frequency(w) / num_words;
+double newsgroup::max_likelyhood_estimator(int id) const {
+  return (double)word_frequency(id) / num_words;
 }
 
-double newsgroup::bayesian_estimator(const word& w) const {
-  return (double)word_frequency(w) / (num_words + VOCAB_LEN);
+double newsgroup::bayesian_estimator(int id) const {
+  return (double)word_frequency(id) / (num_words + VOCAB_LEN);
 }
 
-const char* newsgroup::get_name() const { return name; }
+std::string newsgroup::get_name() const { return name; }
 
 int newsgroup::get_id() const { return id; }
 

@@ -1,5 +1,7 @@
 #include "main.h"
+#include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,56 +11,67 @@
 #include "newsgroup.h"
 
 using namespace naive_bayes;
+using std::string;
+using std::vector;
 
 int main(int argc, char** argv) {
-  std::string path = "20newsgroups/";
+  string path = "20newsgroups/";
   int total_words = 0;
   FILE* vocab = fopen((path + "vocabulary.txt").c_str(), "r");
-  if (!vocab) return -1;
+  if (!vocab) {
+    std::cout << "DEBUG: no vocab file" << std::endl;
+    return -1;
+  }
   newsgroup::VOCAB_LEN = count_lines(vocab);
 
-  std::vector<newsgroup> newsgroups;
+  srand((unsigned)time(0));
+
+  vector<newsgroup> newsgroups;
   std::ifstream map_file(path + "map.csv");
-  std::string line;
+  string line;
 
   // create news groups
   while (std::getline(map_file, line)) {
-    std::vector<std::string> in;
+    vector<string> in;
     tokenize(line, in);
-    newsgroups.push_back(newsgroup(in[0].c_str(), stoi(in[1])));
+    // std::cout << in[1] << std::endl;
+    newsgroups.push_back(newsgroup(in[1].c_str(), stoi(in[0])));
   }
 
   std::ifstream train_label(path + "train_label.csv");
   std::ifstream train_data(path + "train_data.csv");
-  std::string label_line;
+  string label_line;
 
   // read first doc id
   if (!std::getline(train_data, line)) {
+    std::cerr << "DEBUG: no first doc id" << std::endl;
     return -1;
   }
+
   int prev_doc_id = stoi(line.substr(0, line.find(",")));
   train_data.clear();
   train_data.seekg(0, std::ios::beg);
 
-  std::vector<word> words;
+  vector<word> words;
   int doc_id;
 
   while (std::getline(train_data, line)) {
-    std::vector<std::string> doc_row;
+    vector<string> doc_row;
     tokenize(line, doc_row);
     doc_id = stoi(doc_row[0]);
     int word_id = stoi(doc_row[1]);
     int word_count = stoi(doc_row[2]);
     total_words += word_count;
 
-    if (prev_doc_id != word_id) {
+    if (prev_doc_id != doc_id) {
       document doc(prev_doc_id, words);
       prev_doc_id = doc_id;
       words.clear();
-      if (!std::getline(train_data, label_line)) {
+      if (!std::getline(train_label, label_line)) {
+        std::cerr << "DEBUG: no label line" << std::endl;
         return -1;
       }
-      auto& ng = newsgroups[first_token(label_line, ",") - 1];
+      auto& ng = newsgroups[stoi(label_line) - 1];
       ng.add_document(doc);
     }
 
@@ -66,15 +79,16 @@ int main(int argc, char** argv) {
   }
 
   document doc(doc_id, words);
-  if (!std::getline(train_data, label_line)) {
+  if (!std::getline(train_label, label_line)) {
+    std::cout << "DEBUG: no final label line" << std::endl;
     return -1;
   }
-  auto& ng = newsgroups[first_token(label_line, ",")];
+  auto& ng = newsgroups[stoi(label_line) - 1];
   ng.add_document(doc);
-  //   newsgroups[0].get_name();
-  //   for (const auto& ng : newsgroups) {
-  //     std::cout << ng.get_name() << std::endl;
-  //   }
+
+  for (const auto& ng : newsgroups) {
+    std::cout << ng.get_name() << ng.prior() << std::endl;
+  }
   return 0;
 }
 
@@ -88,14 +102,14 @@ unsigned int count_lines(FILE* fp) {
   return num_lines;
 }
 
-void tokenize(const std::string& str, std::vector<std::string>& tokens,
-              const std::string& delimiters) {
+void tokenize(const string& str, vector<string>& tokens,
+              const string& delimiters) {
   // Skip delimiters at beginning.
-  std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
   // Find first "non-delimiter".
-  std::string::size_type pos = str.find_first_of(delimiters, lastPos);
+  string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-  while (std::string::npos != pos || std::string::npos != lastPos) {
+  while (string::npos != pos || string::npos != lastPos) {
     // Found a token, add it to the vector.
     tokens.push_back(str.substr(lastPos, pos - lastPos));
     // Skip delimiters.  Note the "not_of"
@@ -105,6 +119,47 @@ void tokenize(const std::string& str, std::vector<std::string>& tokens,
   }
 }
 
-inline int first_token(const std::string& str, const std::string& delim) {
+inline int first_token(const string& str, const string& delim) {
   return stoi(str.substr(0, str.find(delim)));
+}
+std::pair<string, double> naive_bayes_classify(
+    const vector<newsgroup>& newsgroups, const vector<word>& in_words,
+    double (*estimator)(const newsgroup& ng, const vector<word>& in_words)) {
+  std::map<string, double> nb_vals;
+  std::pair<string, double> prediction("", 0);
+  for (const auto& ng : newsgroups) {
+    nb_vals[ng.get_name()] = estimator(ng, in_words);
+    if (nb_vals[ng.get_name()] != 0 &&
+        nb_vals[ng.get_name()] > prediction.second) {
+      prediction.first = ng.get_name();
+      prediction.second = nb_vals[ng.get_name()];
+    }
+  }
+  if (prediction.first == "") {
+    const auto& ng = newsgroups[(rand() % 19)];
+    prediction.first = ng.get_name();
+  }
+  return prediction;
+}
+
+double naive_bayes_be(const newsgroup& ng, const vector<word>& words) {
+  double sum = 0;
+  for (const auto& w : words) {
+    sum += log(ng.bayesian_estimator(w.id));
+  }
+  return sum;
+}
+
+double naive_bayes_mle(const newsgroup& ng, const vector<word>& words) {
+  double sum = 0;
+  for (const auto& w : words) {
+    auto est = ng.max_likelyhood_estimator(w.id);
+    if (!est) {
+      sum = 0;
+      break;
+    }
+    sum += log(est);
+  }
+
+  return sum != 0 ? log(ng.prior() + sum) : 0;
 }
