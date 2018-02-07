@@ -13,7 +13,8 @@ using namespace naive_bayes;
 int main(int argc, char** argv) {
   std::string path = "20newsgroups/";
   int total_words = 0;
-  FILE* vocab = fopen((path + "vocaulary.txt").c_str(), "rb");
+  FILE* vocab = fopen((path + "vocabulary.txt").c_str(), "r");
+  if (!vocab) return -1;
   newsgroup::VOCAB_LEN = count_lines(vocab);
 
   std::vector<newsgroup> newsgroups;
