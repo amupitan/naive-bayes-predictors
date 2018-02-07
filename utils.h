@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -8,3 +11,5 @@ void tokenize(const std::string& str, std::vector<std::string>& tokens,
               const std::string& delimiters = ",");
 
 int first_token(const std::string& str, const std::string& delim);
+
+#endif

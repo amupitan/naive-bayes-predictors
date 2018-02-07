@@ -1,3 +1,6 @@
+#ifndef NAIVE_BAYES_H
+#define NAIVE_BAYES_H
+
 #include "document.h"
 #include "newsgroup.h"
 
@@ -19,3 +22,5 @@ void predict(const std::vector<naive_bayes::newsgroup>& newsgroups,
 std::pair<std::string, double> naive_bayes_classify(
     const std::vector<int>& in_words, estimator_t estimator);
 }  // namespace naive_bayes
+
+#endif

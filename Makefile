@@ -20,8 +20,11 @@ newsgroup.o: newsgroup.cpp newsgroup.h
 naive_bayes.o: naive_bayes.cpp naive_bayes.h
 	$(CC) $(CFLAGS) -c naive_bayes.cpp
 
-all: document.o newsgroup.o main.o utils.o naive_bayes.o
-	$(CC) $(CFLAGS) document.o main.o newsgroup.o utils.o naive_bayes.o -o ml
+parse_data.o: parse_data.cpp parse_data.h
+	$(CC) $(CFLAGS) -c parse_data.cpp
+
+all: document.o newsgroup.o main.o utils.o naive_bayes.o parse_data.o
+	$(CC) $(CFLAGS) document.o main.o newsgroup.o utils.o naive_bayes.o parse_data.o -o ml
 
 clean:
 	rm -rf *.o ml

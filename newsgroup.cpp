@@ -23,6 +23,7 @@ const document& newsgroup::add_document(const document& d) {
   }
   return documents[documents.size() - 1];
 }
+
 int newsgroup::num_unique_words() const { return words.size(); }
 
 int newsgroup::word_frequency(int id) const {
