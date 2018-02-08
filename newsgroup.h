@@ -9,8 +9,6 @@
 
 namespace naive_bayes {
 class newsgroup {
-  static std::set<int> all_words;
-  static int TOTAL_DOCS;
   int id;
   const std::string name;
   std::vector<document> documents;
@@ -20,6 +18,8 @@ class newsgroup {
 
  public:
   static int VOCAB_LEN;
+  static int TOTAL_DOCS;
+  static std::set<int> all_words;
   newsgroup(const char* name, int id);
 
   const document& add_document(const document& d);
@@ -27,6 +27,7 @@ class newsgroup {
   double prior() const;
   double max_likelyhood_estimator(int id) const;
   double bayesian_estimator(int id) const;
+  int get_num_docs() const;
   std::string get_name() const;
   int get_id() const;
 };

@@ -1,5 +1,6 @@
 #include "naive_bayes.h"
 #include <cmath>
+#include <limits>
 
 using std::string;
 using std::vector;
@@ -10,7 +11,7 @@ std::pair<string, double> naive_bayes_classify(
     const vector<newsgroup>& newsgroups, const vector<word>& in_words,
     double (*estimator)(const newsgroup& ng, const vector<word>& in_words)) {
   std::map<string, double> nb_vals;
-  std::pair<string, double> prediction("", 0);
+  std::pair<string, double> prediction("", -std::numeric_limits<double>::max());
   for (const auto& ng : newsgroups) {
     nb_vals[ng.get_name()] = estimator(ng, in_words);
     if (nb_vals[ng.get_name()] != 0 &&
@@ -31,21 +32,21 @@ double naive_bayes_be(const newsgroup& ng, const vector<word>& words) {
   for (const auto& w : words) {
     sum += log(ng.bayesian_estimator(w.id));
   }
-  return sum;
+  return sum + log(ng.prior());
 }
 
 double naive_bayes_mle(const newsgroup& ng, const vector<word>& words) {
   double sum = 0;
   for (const auto& w : words) {
     auto est = ng.max_likelyhood_estimator(w.id);
-    if (!est) {
+    if (est == 0) {
       sum = 0;
       break;
     }
     sum += log(est);
   }
 
-  return sum != 0 ? log(ng.prior() + sum) : 0;
+  return sum != 0 ? log(ng.prior()) + sum : 0;
 }
 
 void predict(const vector<newsgroup>& newsgroups, estimator_t estimator,
@@ -56,5 +57,7 @@ void predict(const vector<newsgroup>& newsgroups, estimator_t estimator,
     docs[doc] = res.first;
   }
 }
+
+// double accuracy();
 
 }  // namespace naive_bayes

@@ -43,8 +43,10 @@ double newsgroup::max_likelyhood_estimator(int id) const {
 }
 
 double newsgroup::bayesian_estimator(int id) const {
-  return (double)word_frequency(id) / (num_words + VOCAB_LEN);
+  return (double)(word_frequency(id) + 1) / (num_words + VOCAB_LEN);
 }
+
+int newsgroup::get_num_docs() const { return documents.size(); }
 
 std::string newsgroup::get_name() const { return name; }
 
