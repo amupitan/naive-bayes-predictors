@@ -58,6 +58,31 @@ void predict(const vector<newsgroup>& newsgroups, estimator_t estimator,
   }
 }
 
-// double accuracy();
+double overall_accuracy(std::map<string, double>& accuracy,
+                        const vector<newsgroup>& newsgroups,
+                        const std::map<document, string>& train_docs,
+                        const std::map<document, string>& train_pred_docs,
+                        bool is_test = false) {
+  for (const newsgroup& ng : newsgroups) {
+    accuracy[ng.get_name()] = 0;
+  }
+  double overall = 0;
+
+  for (auto it = train_docs.begin(); it != train_docs.end(); it++) {
+    auto& doc = it->first;
+    auto& train_name = it->second;
+    auto& pred_name = train_pred_docs.at(doc);
+    if (train_name == pred_name) {
+      accuracy[train_name]++;
+      overall++;
+    }
+  }
+  for (const newsgroup& ng : newsgroups) {
+    auto divisor = is_test ? ng.get_num_test_docs() : ng.get_num_docs();
+    accuracy[ng.get_name()] = accuracy[ng.get_name()] / divisor;
+  }
+  auto divisor = is_test ? newsgroup::TOTAL_TEST_DOCS : newsgroup::TOTAL_DOCS;
+  return overall / divisor;
+}
 
 }  // namespace naive_bayes

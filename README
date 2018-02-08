@@ -1,0 +1,6 @@
+# Naive Bayes Classifier
+
+- place 20newsgroups directory in the same directory as the cpp files
+- run `make check` to ensure you have the right files in the right directory
+- run `make` to compile the files
+- run `./naive_bayes_classifier` to run the program

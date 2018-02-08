@@ -94,4 +94,68 @@ int vocab_len(const string& path) {
   return count_lines(vocab);
 }
 
+int get_test_data(vector<newsgroup>& newsgroups,
+                  std::map<document, string>& test_docs,
+                  std::map<document, string>& test_pred_docs,
+                  const string& path) {
+  string line;
+
+  std::ifstream label(path + "test_label.csv");
+  std::ifstream data(path + "test_data.csv");
+  string label_line;
+
+  // read first doc id
+  if (!std::getline(data, line)) {
+    std::cerr << "DEBUG: no first doc id" << std::endl;
+    return -1;
+  }
+
+  int prev_doc_id = stoi(line.substr(0, line.find(",")));
+  data.clear();
+  data.seekg(0, std::ios::beg);
+
+  vector<word> words;
+  int doc_id;
+
+  while (std::getline(data, line)) {
+    vector<string> doc_row;
+    tokenize(line, doc_row);
+    doc_id = stoi(doc_row[0]);
+    int word_id = stoi(doc_row[1]);
+    int word_count = stoi(doc_row[2]);
+
+    if (prev_doc_id != doc_id) {
+      document doc(prev_doc_id, words);
+      prev_doc_id = doc_id;
+      words.clear();
+      if (!std::getline(label, label_line)) {
+        std::cerr << "DEBUG: no label line" << std::endl;
+        return -1;
+      }
+      auto& ng = newsgroups[stoi(label_line) - 1];
+
+      ng.add_test_document();
+      test_pred_docs[doc] = "";
+      test_docs[doc] = ng.get_name();
+    }
+
+    words.push_back(word(word_id, word_count));
+  }
+
+  document doc(doc_id, words);
+  if (!std::getline(label, label_line)) {
+    std::cout << "DEBUG: no final label line" << std::endl;
+    return -1;
+  }
+  auto& ng = newsgroups[stoi(label_line) - 1];
+  ng.add_test_document();
+  test_pred_docs[doc] = "";
+  test_docs[doc] = ng.get_name();
+
+  label.close();
+  data.close();
+
+  return 0;
+}
+
 }  // namespace naive_bayes

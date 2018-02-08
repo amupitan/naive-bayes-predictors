@@ -2,6 +2,7 @@
 
 namespace naive_bayes {
 int newsgroup::TOTAL_DOCS;
+int newsgroup::TOTAL_TEST_DOCS;
 int newsgroup::VOCAB_LEN;
 std::set<int> newsgroup::all_words;
 
@@ -24,6 +25,16 @@ const document& newsgroup::add_document(const document& d) {
   return documents[documents.size() - 1];
 }
 
+void newsgroup::add_test_document() {
+  TOTAL_TEST_DOCS++;
+  num_test_docs++;
+}
+
+void newsgroup::reset() {
+  TOTAL_TEST_DOCS = 0;
+  num_test_docs = 0;
+}
+
 int newsgroup::num_unique_words() const { return words.size(); }
 
 int newsgroup::word_frequency(int id) const {
@@ -43,10 +54,12 @@ double newsgroup::max_likelyhood_estimator(int id) const {
 }
 
 double newsgroup::bayesian_estimator(int id) const {
-  return (double)(word_frequency(id) + 1) / (num_words + VOCAB_LEN);
+  return (double)(word_frequency(id) + 1) / (num_words + all_words.size());
 }
 
 int newsgroup::get_num_docs() const { return documents.size(); }
+
+int newsgroup::get_num_test_docs() const { return num_test_docs; }
 
 std::string newsgroup::get_name() const { return name; }
 
