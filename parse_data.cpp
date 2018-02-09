@@ -85,15 +85,6 @@ int get_training_data(vector<newsgroup>& newsgroups,
   return 0;
 }
 
-int vocab_len(const string& path) {
-  FILE* vocab = fopen((path + "vocabulary.txt").c_str(), "r");
-  if (!vocab) {
-    std::cout << "DEBUG: no vocab file" << std::endl;
-    return -1;
-  }
-  return count_lines(vocab);
-}
-
 int get_test_data(vector<newsgroup>& newsgroups,
                   std::map<document, string>& test_docs,
                   std::map<document, string>& test_pred_docs,

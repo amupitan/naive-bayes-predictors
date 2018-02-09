@@ -3,7 +3,6 @@
 namespace naive_bayes {
 int newsgroup::TOTAL_DOCS;
 int newsgroup::TOTAL_TEST_DOCS;
-int newsgroup::VOCAB_LEN;
 std::set<int> newsgroup::all_words;
 
 newsgroup::newsgroup(const char* name, int id)
