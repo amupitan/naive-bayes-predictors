@@ -6,12 +6,26 @@
 
 namespace naive_bayes {
 
+/**
+ * Signature for an estimator function
+ * This could be a bayesian estimator or a maximum likelyhood estimator
+ */
 typedef double (*estimator_t)(const naive_bayes::newsgroup&,
                               const std::vector<naive_bayes::word>&);
 
+/**
+ * Bayesian estimator with naive bayes algorithm
+ * \param ng the newsgroup being estimated
+ * \param the set of words i.e. document, being considered
+ */
 double naive_bayes_be(const naive_bayes::newsgroup& ng,
                       const std::vector<naive_bayes::word>& words);
 
+/**
+ * Maximum likelyhood estimator with naive bayes algorithm
+ * \param ng the newsgroup being estimated
+ * \param the set of words i.e. document, being considered
+ */
 double naive_bayes_mle(const naive_bayes::newsgroup& ng,
                        const std::vector<naive_bayes::word>& words);
 
@@ -27,7 +41,7 @@ double overall_accuracy(std::map<std::string, double>& accuracy,
                         const std::vector<newsgroup>& newsgroups,
                         const std::map<document, std::string>& train_docs,
                         const std::map<document, std::string>& train_pred_docs,
-                        bool is_test);
+                        bool is_test = false);
 }  // namespace naive_bayes
 
 #endif

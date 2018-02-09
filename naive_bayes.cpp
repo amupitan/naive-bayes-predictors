@@ -62,7 +62,7 @@ double overall_accuracy(std::map<string, double>& accuracy,
                         const vector<newsgroup>& newsgroups,
                         const std::map<document, string>& train_docs,
                         const std::map<document, string>& train_pred_docs,
-                        bool is_test = false) {
+                        bool is_test) {
   for (const newsgroup& ng : newsgroups) {
     accuracy[ng.get_name()] = 0;
   }
