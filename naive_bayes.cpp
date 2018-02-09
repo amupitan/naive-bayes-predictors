@@ -12,6 +12,7 @@ int naive_bayes_classify(const vector<newsgroup>& newsgroups,
   std::vector<double> nb_vals(newsgroups.size());
   std::pair<int, double> prediction(-1, -std::numeric_limits<double>::max());
 
+  // run estimator for each group and determine largest
   for (const auto& ng : newsgroups) {
     nb_vals[ng.get_id()] = estimator(ng, in_words);
     if (nb_vals[ng.get_id()] != 0 && nb_vals[ng.get_id()] > prediction.second) {
@@ -19,9 +20,10 @@ int naive_bayes_classify(const vector<newsgroup>& newsgroups,
       prediction.second = nb_vals[ng.get_id()];
     }
   }
+
+  // randomly pick a group if classification returns zero
   if (prediction.first == -1) {
-    const auto& ng = newsgroups[(rand() % (newsgroups.size() - 1))];
-    prediction.first = ng.get_id();
+    prediction.first = rand() % (newsgroups.size() - 1);
   }
   return prediction.first;
 }
@@ -65,16 +67,23 @@ double overall_accuracy(std::vector<double>& accuracy,
                         bool is_test) {
   double overall = 0;
 
+  // get every document in training model
   for (auto it = train_docs.begin(); it != train_docs.end(); it++) {
     auto& doc = it->first;
     auto& train_ng_id = it->second;
     auto& pred_ng_id = train_pred_docs.at(doc);
+
+    // add document count to confusion matrix
     confusion_matrix[train_ng_id][pred_ng_id]++;
+
+    // account for accuracy
     if (train_ng_id == pred_ng_id) {
       accuracy[train_ng_id]++;
       overall++;
     }
   }
+
+  // divide each group's correct count by total count
   for (const newsgroup& ng : newsgroups) {
     auto divisor = is_test ? ng.get_num_test_docs() : ng.get_num_docs();
     accuracy[ng.get_id()] = accuracy[ng.get_id()] / divisor;

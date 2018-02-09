@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
   std::map<document, int> train_docs;
   std::map<document, int> train_pred_docs;
 
+  // create model from training data
   if (get_training_data(newsgroups, train_docs, train_pred_docs, path) == -1) {
     return -1;
   }
@@ -37,22 +38,26 @@ int main(int argc, char** argv) {
   vector<vector<int>> confusion_matrix(CLASS_SIZE);
   for (auto& row : confusion_matrix) row = vector<int>(CLASS_SIZE);
 
+  // classify training data using Bayesian Estimate
   predict(newsgroups, naive_bayes_be, train_pred_docs);
   std::cout << "BE training data:" << std::endl;
   create_and_print_report(newsgroups, train_docs, train_pred_docs, accuracy,
                           confusion_matrix, false);
 
+  // get test data
   std::map<document, int> test_docs;
   std::map<document, int> test_pred_docs;
   if (get_test_data(newsgroups, test_docs, test_pred_docs, path) == -1) {
     return -1;
   }
 
+  // classify test data using Bayesian Estimate
   predict(newsgroups, naive_bayes_be, test_pred_docs);
   std::cout << "BE test data:" << std::endl;
   create_and_print_report(newsgroups, test_docs, test_pred_docs, accuracy,
                           confusion_matrix, true);
 
+  // classify test data using Maximum Likelyhood Estimate
   predict(newsgroups, naive_bayes_mle, test_pred_docs);
   std::cout << "MLE test data:" << std::endl;
   create_and_print_report(newsgroups, test_docs, test_pred_docs, accuracy,
@@ -67,9 +72,12 @@ void create_and_print_report(const vector<newsgroup>& newsgroups,
                              vector<double>& accuracy,
                              vector<vector<int>>& confusion_matrix,
                              bool is_test) {
+  // clear accuracy and mtrix
   std::fill(accuracy.begin(), accuracy.end(), 0);
   std::fill(confusion_matrix.begin(), confusion_matrix.end(),
             vector<int>(newsgroups.size()));
+
+  // display accuracy
   std::cout << "Overall Accuracy: "
             << overall_accuracy(accuracy, newsgroups, actual_docs, pred_docs,
                                 confusion_matrix, is_test)
@@ -80,6 +88,8 @@ void create_and_print_report(const vector<newsgroup>& newsgroups,
               << std::endl;
   }
   std::cout << std::endl;
+
+  // display confusion matrix
   std::cout << "Confusion matrix:" << std::endl;
   for (const auto& i_ng : confusion_matrix) {
     for (const auto& j_ng : i_ng) {

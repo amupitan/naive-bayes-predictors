@@ -45,6 +45,7 @@ int get_training_data(vector<newsgroup>& newsgroups,
   vector<word> words;
   int doc_id;
 
+  // get line of training data
   while (std::getline(train_data, line)) {
     vector<string> doc_row;
     tokenize(line, doc_row);
@@ -53,6 +54,7 @@ int get_training_data(vector<newsgroup>& newsgroups,
     int word_count = stoi(doc_row[2]);
     total_words += word_count;
 
+    // create and add document
     if (prev_doc_id != doc_id) {
       document doc(prev_doc_id, words);
       prev_doc_id = doc_id;
@@ -72,6 +74,7 @@ int get_training_data(vector<newsgroup>& newsgroups,
     words.push_back(word(word_id, word_count));
   }
 
+  // add last document
   document doc(doc_id, words);
   if (!std::getline(train_label, label_line)) {
     std::cout << "DEBUG: no final label line" << std::endl;

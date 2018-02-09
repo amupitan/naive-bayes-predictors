@@ -9,12 +9,16 @@ newsgroup::newsgroup(std::string name, int id)
     : id(id), name(name), num_words(0) {}
 
 const document& newsgroup::add_document(const document& d) {
+  // add doc to list
   documents.push_back(d);
   TOTAL_DOCS++;
 
   for (const word& w : d.words) {
+    // increase count of words
     num_words += w.count;
     all_words.insert(w.id);
+
+    // increase count per word
     if (words.find(w.id) == words.end()) {
       words[w.id] = w.count;
     } else {

@@ -8,9 +8,6 @@ default: all
 main.o: newsgroup.h main.cpp naive_bayes.h document.h utils.h
 	$(CC) $(CFLAGS) -c main.cpp
 
-document.o: document.h document.cpp
-	$(CC) $(CFLAGS) -c document.cpp
-
 utils.o: utils.h utils.cpp
 	$(CC) $(CFLAGS) -c utils.cpp
 
@@ -23,8 +20,8 @@ naive_bayes.o: naive_bayes.cpp naive_bayes.h
 parse_data.o: parse_data.cpp parse_data.h
 	$(CC) $(CFLAGS) -c parse_data.cpp
 
-all: document.o newsgroup.o main.o utils.o naive_bayes.o parse_data.o
-	$(CC) $(CFLAGS) document.o main.o newsgroup.o utils.o naive_bayes.o parse_data.o -o ml
+all: newsgroup.o main.o utils.o naive_bayes.o parse_data.o
+	$(CC) $(CFLAGS) main.o newsgroup.o utils.o naive_bayes.o parse_data.o -o ml
 
 clean:
 	rm -rf *.o ml

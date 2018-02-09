@@ -3,16 +3,6 @@
 using std::string;
 using std::vector;
 
-unsigned int count_lines(FILE* fp) {
-  unsigned int num_lines = 0;
-  int ch = 0;
-  do {
-    ch = fgetc(fp);
-    if (ch == '\n') num_lines++;
-  } while (ch != EOF);
-  return num_lines;
-}
-
 void tokenize(const string& str, vector<string>& tokens,
               const string& delimiters) {
   // Skip delimiters at beginning.

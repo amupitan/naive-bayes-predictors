@@ -21,7 +21,7 @@ for f in files:
     file_path = path + f
     if os.path.isfile(file_path) == False:
         sys.stderr.write("ERR: " + f + " is missing in the " + path +
-                         " directory. Please include it\n")
+                         " directory. Please include it before you continue\n")
         sys.exit(-1)
 
 print "All files are placed correctly!"
