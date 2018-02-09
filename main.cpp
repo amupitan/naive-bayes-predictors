@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -12,11 +13,12 @@ using namespace naive_bayes;
 using std::string;
 using std::vector;
 
-void print_report(const vector<newsgroup>& newsgroups,
-                  const std::map<document, int>& actual_docs,
-                  const std::map<document, int>& pred_docs,
-                  vector<double> accuracy,
-                  vector<vector<int>>& confusion_matrix, bool is_test);
+void create_and_print_report(const vector<newsgroup>& newsgroups,
+                             const std::map<document, int>& actual_docs,
+                             const std::map<document, int>& pred_docs,
+                             vector<double>& accuracy,
+                             vector<vector<int>>& confusion_matrix,
+                             bool is_test);
 
 int main(int argc, char** argv) {
   constexpr auto path = "20newsgroups/";
@@ -37,10 +39,8 @@ int main(int argc, char** argv) {
 
   predict(newsgroups, naive_bayes_be, train_pred_docs);
   std::cout << "BE training data:" << std::endl;
-  print_report(newsgroups, train_docs, train_pred_docs, accuracy,
-               confusion_matrix, false);
-
-  // Confusion matrix BE traning
+  create_and_print_report(newsgroups, train_docs, train_pred_docs, accuracy,
+                          confusion_matrix, false);
 
   std::map<document, int> test_docs;
   std::map<document, int> test_pred_docs;
@@ -50,22 +50,26 @@ int main(int argc, char** argv) {
 
   predict(newsgroups, naive_bayes_be, test_pred_docs);
   std::cout << "BE test data:" << std::endl;
-  print_report(newsgroups, test_docs, test_pred_docs, accuracy,
-               confusion_matrix, true);
+  create_and_print_report(newsgroups, test_docs, test_pred_docs, accuracy,
+                          confusion_matrix, true);
 
   predict(newsgroups, naive_bayes_mle, test_pred_docs);
   std::cout << "MLE test data:" << std::endl;
-  print_report(newsgroups, test_docs, test_pred_docs, accuracy,
-               confusion_matrix, true);
+  create_and_print_report(newsgroups, test_docs, test_pred_docs, accuracy,
+                          confusion_matrix, true);
 
   return 0;
 }
 
-void print_report(const vector<newsgroup>& newsgroups,
-                  const std::map<document, int>& actual_docs,
-                  const std::map<document, int>& pred_docs,
-                  vector<double> accuracy,
-                  vector<vector<int>>& confusion_matrix, bool is_test) {
+void create_and_print_report(const vector<newsgroup>& newsgroups,
+                             const std::map<document, int>& actual_docs,
+                             const std::map<document, int>& pred_docs,
+                             vector<double>& accuracy,
+                             vector<vector<int>>& confusion_matrix,
+                             bool is_test) {
+  std::fill(accuracy.begin(), accuracy.end(), 0);
+  std::fill(confusion_matrix.begin(), confusion_matrix.end(),
+            vector<int>(newsgroups.size()));
   std::cout << "Overall Accuracy: "
             << overall_accuracy(accuracy, newsgroups, actual_docs, pred_docs,
                                 confusion_matrix, is_test)
@@ -77,6 +81,11 @@ void print_report(const vector<newsgroup>& newsgroups,
   }
   std::cout << std::endl;
   std::cout << "Confusion matrix:" << std::endl;
-  // for (const auto& ig : newsgroups) {
-  // }
+  for (const auto& i_ng : confusion_matrix) {
+    for (const auto& j_ng : i_ng) {
+      std::cout << std::setw(4) << j_ng;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
 }

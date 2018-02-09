@@ -69,6 +69,7 @@ double overall_accuracy(std::vector<double>& accuracy,
     auto& doc = it->first;
     auto& train_ng_id = it->second;
     auto& pred_ng_id = train_pred_docs.at(doc);
+    confusion_matrix[train_ng_id][pred_ng_id]++;
     if (train_ng_id == pred_ng_id) {
       accuracy[train_ng_id]++;
       overall++;
