@@ -33,6 +33,12 @@ int main(int argc, char** argv) {
     return -1;
   }
 
+  // display priors
+  for (const auto& ng : newsgroups) {
+    std::cout << "Prior(" << ng.get_id() + 1 << ")  = " << ng.prior()
+              << std::endl;
+  }
+
   const int CLASS_SIZE = newsgroups.size();
   std::vector<double> accuracy(CLASS_SIZE);
   vector<vector<int>> confusion_matrix(CLASS_SIZE);
