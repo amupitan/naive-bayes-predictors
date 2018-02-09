@@ -29,13 +29,6 @@ void newsgroup::add_test_document() {
   num_test_docs++;
 }
 
-void newsgroup::reset() {
-  TOTAL_TEST_DOCS = 0;
-  num_test_docs = 0;
-}
-
-int newsgroup::num_unique_words() const { return words.size(); }
-
 int newsgroup::word_frequency(int id) const {
   auto found = words.find(id);
   if (found != words.end()) {
