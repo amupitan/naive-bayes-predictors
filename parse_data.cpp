@@ -14,8 +14,8 @@ using std::vector;
 namespace naive_bayes {
 
 int get_training_data(vector<newsgroup>& newsgroups,
-                      std::map<document, string>& train_docs,
-                      std::map<document, string>& train_pred_docs,
+                      std::map<document, int>& train_docs,
+                      std::map<document, int>& train_pred_docs,
                       const string& path) {
   int total_words = 0;
   std::ifstream map_file(path + "map.csv");
@@ -25,7 +25,7 @@ int get_training_data(vector<newsgroup>& newsgroups,
   while (std::getline(map_file, line)) {
     vector<string> in;
     tokenize(line, in);
-    newsgroups.push_back(newsgroup(in[1].c_str(), stoi(in[0])));
+    newsgroups.push_back(newsgroup(in[1], stoi(in[0]) - 1));
   }
 
   std::ifstream train_label(path + "train_label.csv");
@@ -65,8 +65,8 @@ int get_training_data(vector<newsgroup>& newsgroups,
 
       const auto& added_doc = ng.add_document(doc);
 
-      train_pred_docs[added_doc] = "";
-      train_docs[added_doc] = ng.get_name();
+      train_pred_docs[added_doc] = -1;
+      train_docs[added_doc] = ng.get_id();
     }
 
     words.push_back(word(word_id, word_count));
@@ -79,16 +79,18 @@ int get_training_data(vector<newsgroup>& newsgroups,
   }
   auto& ng = newsgroups[stoi(label_line) - 1];
   const auto& added_doc = ng.add_document(doc);
-  train_pred_docs[added_doc] = "";
-  train_docs[added_doc] = ng.get_name();
+  train_pred_docs[added_doc] = -1;
+  train_docs[added_doc] = ng.get_id();
+
+  train_label.close();
+  train_data.close();
 
   return 0;
 }
 
 int get_test_data(vector<newsgroup>& newsgroups,
-                  std::map<document, string>& test_docs,
-                  std::map<document, string>& test_pred_docs,
-                  const string& path) {
+                  std::map<document, int>& test_docs,
+                  std::map<document, int>& test_pred_docs, const string& path) {
   string line;
 
   std::ifstream label(path + "test_label.csv");
@@ -126,8 +128,8 @@ int get_test_data(vector<newsgroup>& newsgroups,
       auto& ng = newsgroups[stoi(label_line) - 1];
 
       ng.add_test_document();
-      test_pred_docs[doc] = "";
-      test_docs[doc] = ng.get_name();
+      test_pred_docs[doc] = -1;
+      test_docs[doc] = ng.get_id();
     }
 
     words.push_back(word(word_id, word_count));
@@ -140,8 +142,8 @@ int get_test_data(vector<newsgroup>& newsgroups,
   }
   auto& ng = newsgroups[stoi(label_line) - 1];
   ng.add_test_document();
-  test_pred_docs[doc] = "";
-  test_docs[doc] = ng.get_name();
+  test_pred_docs[doc] = -1;
+  test_docs[doc] = ng.get_id();
 
   label.close();
   data.close();

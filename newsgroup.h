@@ -21,7 +21,7 @@ class newsgroup {
  public:
   static int TOTAL_DOCS;
   static int TOTAL_TEST_DOCS;
-  newsgroup(const char* name, int id);
+  newsgroup(std::string name, int id);
 
   const document& add_document(const document& d);
   void add_test_document();

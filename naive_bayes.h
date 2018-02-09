@@ -30,17 +30,17 @@ double naive_bayes_mle(const naive_bayes::newsgroup& ng,
                        const std::vector<naive_bayes::word>& words);
 
 void predict(const std::vector<naive_bayes::newsgroup>& newsgroups,
-             estimator_t estimator,
-             std::map<naive_bayes::document, std::string>& docs);
+             estimator_t estimator, std::map<naive_bayes::document, int>& docs);
 
-std::pair<std::string, double> naive_bayes_classify(
-    const std::vector<newsgroup>& newsgroups, const std::vector<word>& in_words,
-    estimator_t estimator);
+int naive_bayes_classify(const std::vector<newsgroup>& newsgroups,
+                         const std::vector<word>& in_words,
+                         estimator_t estimator);
 
-double overall_accuracy(std::map<std::string, double>& accuracy,
+double overall_accuracy(std::vector<double>& accuracy,
                         const std::vector<newsgroup>& newsgroups,
-                        const std::map<document, std::string>& train_docs,
-                        const std::map<document, std::string>& train_pred_docs,
+                        const std::map<document, int>& train_docs,
+                        const std::map<document, int>& train_pred_docs,
+                        std::vector<std::vector<int>>& confusion_matrix,
                         bool is_test = false);
 }  // namespace naive_bayes
 

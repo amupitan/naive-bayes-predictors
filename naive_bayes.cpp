@@ -7,24 +7,23 @@ using std::vector;
 
 namespace naive_bayes {
 
-std::pair<string, double> naive_bayes_classify(
-    const vector<newsgroup>& newsgroups, const vector<word>& in_words,
-    double (*estimator)(const newsgroup& ng, const vector<word>& in_words)) {
-  std::map<string, double> nb_vals;
-  std::pair<string, double> prediction("", -std::numeric_limits<double>::max());
+int naive_bayes_classify(const vector<newsgroup>& newsgroups,
+                         const vector<word>& in_words, estimator_t estimator) {
+  std::vector<double> nb_vals(newsgroups.size());
+  std::pair<int, double> prediction(-1, -std::numeric_limits<double>::max());
+
   for (const auto& ng : newsgroups) {
-    nb_vals[ng.get_name()] = estimator(ng, in_words);
-    if (nb_vals[ng.get_name()] != 0 &&
-        nb_vals[ng.get_name()] > prediction.second) {
-      prediction.first = ng.get_name();
-      prediction.second = nb_vals[ng.get_name()];
+    nb_vals[ng.get_id()] = estimator(ng, in_words);
+    if (nb_vals[ng.get_id()] != 0 && nb_vals[ng.get_id()] > prediction.second) {
+      prediction.first = ng.get_id();
+      prediction.second = nb_vals[ng.get_id()];
     }
   }
-  if (prediction.first == "") {
-    const auto& ng = newsgroups[(rand() % 19)];
-    prediction.first = ng.get_name();
+  if (prediction.first == -1) {
+    const auto& ng = newsgroups[(rand() % (newsgroups.size() - 1))];
+    prediction.first = ng.get_id();
   }
-  return prediction;
+  return prediction.first;
 }
 
 double naive_bayes_be(const newsgroup& ng, const vector<word>& words) {
@@ -50,36 +49,34 @@ double naive_bayes_mle(const newsgroup& ng, const vector<word>& words) {
 }
 
 void predict(const vector<newsgroup>& newsgroups, estimator_t estimator,
-             std::map<document, string>& docs) {
+             std::map<document, int>& docs) {
   for (auto it = docs.begin(); it != docs.end(); it++) {
     auto doc = it->first;
-    auto res = naive_bayes_classify(newsgroups, doc.words, estimator);
-    docs[doc] = res.first;
+    int ng_id = naive_bayes_classify(newsgroups, doc.words, estimator);
+    docs[doc] = ng_id;
   }
 }
 
-double overall_accuracy(std::map<string, double>& accuracy,
+double overall_accuracy(std::vector<double>& accuracy,
                         const vector<newsgroup>& newsgroups,
-                        const std::map<document, string>& train_docs,
-                        const std::map<document, string>& train_pred_docs,
+                        const std::map<document, int>& train_docs,
+                        const std::map<document, int>& train_pred_docs,
+                        std::vector<std::vector<int> >& confusion_matrix,
                         bool is_test) {
-  for (const newsgroup& ng : newsgroups) {
-    accuracy[ng.get_name()] = 0;
-  }
   double overall = 0;
 
   for (auto it = train_docs.begin(); it != train_docs.end(); it++) {
     auto& doc = it->first;
-    auto& train_name = it->second;
-    auto& pred_name = train_pred_docs.at(doc);
-    if (train_name == pred_name) {
-      accuracy[train_name]++;
+    auto& train_ng_id = it->second;
+    auto& pred_ng_id = train_pred_docs.at(doc);
+    if (train_ng_id == pred_ng_id) {
+      accuracy[train_ng_id]++;
       overall++;
     }
   }
   for (const newsgroup& ng : newsgroups) {
     auto divisor = is_test ? ng.get_num_test_docs() : ng.get_num_docs();
-    accuracy[ng.get_name()] = accuracy[ng.get_name()] / divisor;
+    accuracy[ng.get_id()] = accuracy[ng.get_id()] / divisor;
   }
   auto divisor = is_test ? newsgroup::TOTAL_TEST_DOCS : newsgroup::TOTAL_DOCS;
   return overall / divisor;

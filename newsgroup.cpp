@@ -5,7 +5,7 @@ int newsgroup::TOTAL_DOCS;
 int newsgroup::TOTAL_TEST_DOCS;
 std::set<int> newsgroup::all_words;
 
-newsgroup::newsgroup(const char* name, int id)
+newsgroup::newsgroup(std::string name, int id)
     : id(id), name(name), num_words(0) {}
 
 const document& newsgroup::add_document(const document& d) {

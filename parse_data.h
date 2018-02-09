@@ -14,8 +14,8 @@ namespace naive_bayes {
  * \param path the path to the training data
  */
 int get_training_data(std::vector<newsgroup>& newsgroups,
-                      std::map<document, std::string>& train_docs,
-                      std::map<document, std::string>& train_pred_docs,
+                      std::map<document, int>& train_docs,
+                      std::map<document, int>& train_pred_docs,
                       const std::string& path);
 
 /**
@@ -26,8 +26,8 @@ int get_training_data(std::vector<newsgroup>& newsgroups,
  * \param path the path to the test data
  */
 int get_test_data(std::vector<newsgroup>& newsgroups,
-                  std::map<document, std::string>& test_docs,
-                  std::map<document, std::string>& test_pred_docs,
+                  std::map<document, int>& test_docs,
+                  std::map<document, int>& test_pred_docs,
                   const std::string& path);
 
 }  // namespace naive_bayes
